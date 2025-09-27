@@ -1,2 +1,5 @@
 # ezASCII
- cli img 2 ascii
+ cli img 2 ascii ruby script
+
+
+
