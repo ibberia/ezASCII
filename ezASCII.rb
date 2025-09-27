@@ -73,7 +73,6 @@ class AsciiArt
       MSG
     end
 
-    # PNG-only fallback path
     unless File.extname(@path).downcase == '.png'
       abort_with "PNG-only mode: please provide a .png image or install mini_magick (and ImageMagick)."
     end
@@ -82,20 +81,19 @@ class AsciiArt
     resize_and_grayscale_chunky(image)
   end
 
-  # Use MiniMagick to load any image, convert to grayscale PNG of target size,
-  # then read pixels with ChunkyPNG if available, or parse via txt if not.
+
   def resized_pixels_with_minimagick
     img = MiniMagick::Image.open(@path)
 
     tw = @target_width
     th = target_height(img.width, img.height, tw)
 
-    # Process with ImageMagick
+    
     img = img.clone
     img.colorspace 'Gray'
     img.resize "#{tw}x#{th}!" # explicit target size
 
-    # Prefer reading pixels via ChunkyPNG for simplicity
+    
     if HAVE_CHUNKYPNG
       Tempfile.create(["ascii_src", ".png"]) do |tmp|
         img.format 'png'
@@ -105,7 +103,7 @@ class AsciiArt
       end
     end
 
-    # Fallback: use ImageMagick to dump pixel values to txt and parse
+    
     txt = img.run_command('convert', img.path, '-colorspace', 'Gray', 'txt:-')
     parse_imagemagick_txt(txt)
   end
@@ -122,7 +120,6 @@ class AsciiArt
     tw = @target_width
     th = target_height(image.width, image.height, tw)
 
-    # Nearest-neighbor sampling to resize
     sx = image.width.to_f / tw
     sy = image.height.to_f / th
 
@@ -155,7 +152,7 @@ class AsciiArt
   end
 
   def to_grayscale(r, g, b, a)
-    # Apply alpha on white background to avoid darkening transparent areas
+   
     alpha = a / 255.0
     r = (r * alpha + 255 * (1 - alpha)).round
     g = (g * alpha + 255 * (1 - alpha)).round
